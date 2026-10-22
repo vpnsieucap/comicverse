@@ -635,7 +635,18 @@
         function formatMangaObject(manga) {
             const attrs = manga.attributes;
             const titleObj = attrs.title || {};
-            const title = titleObj.vi || titleObj.en || Object.values(titleObj)[0] || 'Không tên';
+            
+            let viTitle = null;
+            if (attrs.altTitles && Array.isArray(attrs.altTitles)) {
+                for (let alt of attrs.altTitles) {
+                    if (alt.vi) {
+                        viTitle = alt.vi;
+                        break;
+                    }
+                }
+            }
+
+            const title = viTitle || titleObj.vi || titleObj.en || Object.values(titleObj)[0] || 'Không tên';
             
             const descObj = attrs.description || {};
             const desc = descObj.vi || descObj.en || 'Không có mô tả.';
@@ -858,15 +869,22 @@
                 if (serverData.result === 'ok') {
                     const baseUrl = serverData.baseUrl;
                     const hash = serverData.chapter.hash;
-                    const images = serverData.chapter.data;
+                    const images = serverData.chapter.data || serverData.chapter.dataSaver || [];
 
                     imgContainer.innerHTML = '';
+                    if (images.length === 0) {
+                        imgContainer.innerHTML = `<div class="loading-state" style="color:#ef4444;">Không tìm thấy dữ liệu ảnh cho chương này!</div>`;
+                        return;
+                    }
+
                     images.forEach(filename => {
                         const img = document.createElement('img');
                         img.className = 'comic-page-img';
                         img.loading = 'lazy';
                         img.src = `${baseUrl}/data/${hash}/${filename}`;
-                        img.onerror = function() { this.style.display = 'none'; };
+                        img.onerror = function() {
+                            this.src = `${baseUrl}/data-saver/${hash}/${filename}`;
+                        };
                         imgContainer.appendChild(img);
                     });
 
