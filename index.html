@@ -328,14 +328,13 @@
             </div>
         </div>
 
-        <!-- Menu chuẩn xác với endpoint của OTruyen API -->
+        <!-- Các mục menu đã được tinh chỉnh đúng chuẩn endpoint OTruyen API -->
         <div class="drawer-section">
             <div class="drawer-section-title">Khám Phá</div>
             <div class="drawer-links">
                 <a class="drawer-link active" id="homeMenuLink" onclick="loadDefaultHome(this); toggleMobileMenu();"><i class="fa-solid fa-house" style="width: 20px;"></i> Truyện Mới Cập Nhật</a>
                 <a class="drawer-link" onclick="loadCategory('dang-phat-hanh', 'Đang Phát Hành', this); toggleMobileMenu();"><i class="fa-solid fa-spinner" style="width: 20px;"></i> Đang Phát Hành</a>
                 <a class="drawer-link" onclick="loadCategory('hoan-thanh', 'Đã Hoàn Thành', this); toggleMobileMenu();"><i class="fa-solid fa-circle-check" style="width: 20px;"></i> Đã Hoàn Thành</a>
-                <a class="drawer-link" onclick="loadCategory('sap-ra-mat', 'Sắp Ra Mắt', this); toggleMobileMenu();"><i class="fa-solid fa-clock" style="width: 20px;"></i> Sắp Ra Mắt</a>
             </div>
         </div>
 
@@ -448,7 +447,6 @@
     <script>
         const API_BASE = 'https://otruyenapi.com/v1/api';
 
-        // Hàm fetch chạy qua Vercel Serverless Proxy (/api/proxy) cực kỳ mượt mà và an toàn
         async function fetchApi(url) {
             try {
                 const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
