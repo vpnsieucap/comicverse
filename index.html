@@ -447,6 +447,27 @@
     <script>
         const API_BASE = 'https://otruyenapi.com/v1/api';
 
+        // Hàm fetch thông minh tự động dùng CORS Proxy dự phòng nếu bị trình duyệt/mạng chặn
+        async function fetchApi(url) {
+            try {
+                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                if (res.ok) return await res.json();
+            } catch (e) {}
+
+            try {
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                const resProxy = await fetch(proxyUrl);
+                if (resProxy.ok) {
+                    const text = await resProxy.text();
+                    return JSON.parse(text);
+                }
+            } catch (err) {
+                console.error("Proxy error:", err);
+            }
+
+            throw new Error("Lỗi kết nối API");
+        }
+
         let currentType = 'moi';
         let currentSlug = '';
         let currentPage = 1;
@@ -608,8 +629,7 @@
             let items = [];
             for (let slug of slugs) {
                 try {
-                    const res = await fetch(`${API_BASE}/truyen/${slug}`);
-                    const data = await res.json();
+                    const data = await fetchApi(`${API_BASE}/truyen/${slug}`);
                     if (data.status === 'success' && data.data?.item) {
                         items.push(data.data.item);
                     }
@@ -631,7 +651,7 @@
 
             let url = '';
             if (currentType === 'moi') {
-                url = `${API_BASE}/danh-sach/truyen-moi?page=${currentPage}`;
+                url = `${API_BASE}/home?page=${currentPage}`;
             } else if (currentType === 'category') {
                 url = `${API_BASE}/danh-sach/${currentSlug}?page=${currentPage}`;
             } else if (currentType === 'genre') {
@@ -641,10 +661,10 @@
             }
 
             try {
-                const res = await fetch(url);
-                const data = await res.json();
+                const data = await fetchApi(url);
                 if (data.status === 'success') {
-                    let items = data.data.items || [];
+                    // Xử lý linh hoạt cấu trúc trả về của OTruyen (/home hoặc /danh-sach)
+                    let items = data.data.items || data.data.data?.items || [];
                     cachedCurrentList = items;
                     if (items.length > 0) {
                         if (currentPage === 1 && currentType === 'moi') setupHeroBanner(items[0]);
@@ -654,7 +674,7 @@
                     }
                 }
             } catch (e) {
-                comicGrid.innerHTML = `<div class="loading-state">Lỗi kết nối tới OTruyen API!</div>`;
+                comicGrid.innerHTML = `<div class="loading-state">Lỗi kết nối tới OTruyen API! Vui lòng tải lại trang.</div>`;
             }
         }
 
@@ -678,7 +698,7 @@
                     <div class="poster-wrapper">
                         ${removeHtml}
                         <img src="${thumbUrl}" alt="${item.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/180x260?text=ComicVerse'">
-                        <div class="chapter-badge">${latestChapter}</div>
+                        <div class="chapter-badge">Chương ${latestChapter}</div>
                     </div>
                     <div class="comic-details">
                         <div class="comic-title">${item.name}</div>
@@ -699,8 +719,7 @@
         async function setupHeroBanner(item) {
             const heroBanner = document.getElementById('heroBanner');
             try {
-                const res = await fetch(`${API_BASE}/truyen/${item.slug}`);
-                const data = await res.json();
+                const data = await fetchApi(`${API_BASE}/truyen/${item.slug}`);
                 if (data.status === 'success') {
                     const comic = data.data.item;
                     heroBanner.style.backgroundImage = `url('https://img.otruyenapi.com/uploads/comics/${comic.thumb_url}')`;
@@ -723,8 +742,7 @@
             document.getElementById('modalChapterList').innerHTML = `<div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải chương...</div>`;
 
             try {
-                const res = await fetch(`${API_BASE}/truyen/${slug}`);
-                const data = await res.json();
+                const data = await fetchApi(`${API_BASE}/truyen/${slug}`);
                 if (data.status === 'success') {
                     const comic = data.data.item;
                     currentComicData = comic;
@@ -796,8 +814,7 @@
             saveHistory(currentComicData, `Chương ${chapter.chapter_name}`);
 
             try {
-                const res = await fetch(chapter.chapter_api_data);
-                const data = await res.json();
+                const data = await fetchApi(chapter.chapter_api_data);
                 if (data.status === 'success') {
                     const item = data.data.item;
                     const domainCdn = item.domain_cdn;
