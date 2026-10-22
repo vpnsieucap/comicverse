@@ -17,21 +17,18 @@ module.exports = async (req, res) => {
         const response = await fetch(targetUrl, {
             headers: {
                 'Accept': 'application/json, text/plain, */*',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+                'User-Agent': 'ComicVerseApp/2.0 (contact@comicverse.local)'
             }
         });
 
-        // Lấy dữ liệu dưới dạng text trước để kiểm tra định dạng
         const textResponse = await response.text();
 
         try {
-            // Thử phân tích xem có phải là JSON hợp lệ không
             const data = JSON.parse(textResponse);
             return res.status(response.status).json(data);
         } catch (e) {
-            // Nếu trả về HTML (lỗi 404, 500 hoặc bị chặn), trả về thông báo chi tiết
             return res.status(502).json({ 
-                error: "Upstream API returned HTML instead of JSON", 
+                error: "Upstream API returned non-JSON", 
                 preview: textResponse.substring(0, 200) 
             });
         }
