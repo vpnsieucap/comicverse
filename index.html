@@ -129,11 +129,13 @@
         .drawer-section { padding: 16px 20px; border-bottom: 1px solid var(--border-color); }
         .drawer-section-title { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1.2px; }
         .drawer-links { display: flex; flex-direction: column; gap: 6px; }
-        .drawer-link {
+        .drawer-link, .drawer-grid-item {
             color: #cbd5e1; text-decoration: none; font-size: 12px; font-weight: 600; padding: 10px 14px;
-            border-radius: 8px; background: rgba(255,255,255,0.02); cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 10px;
+            border-radius: 8px; background: rgba(255,255,255,0.02); cursor: pointer; transition: var(--transition);
         }
-        .drawer-link:hover, .drawer-link.active { background: var(--primary-gradient); color: #fff; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4); }
+        .drawer-link:hover, .drawer-link.active, .drawer-grid-item:hover, .drawer-grid-item.active { background: var(--primary-gradient); color: #fff; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4); }
+        .drawer-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        .drawer-grid-item { text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: #14141c; border: 1px solid var(--border-color); }
 
         .hero {
             position: relative; height: 40vh; min-height: 280px; display: flex; align-items: flex-end; padding: 24px;
@@ -258,8 +260,6 @@
         .auth-form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
         .auth-form-group input { width: 100%; background: #15151f; border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 8px; color: #fff; font-size: 12px; outline: none; }
         .auth-btn { width: 100%; background: var(--primary-gradient); color: #fff; border: none; padding: 11px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px; margin-top: 4px; }
-        .auth-switch { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 10px; cursor: pointer; }
-        .auth-switch span { color: #818cf8; font-weight: 700; text-decoration: underline; }
 
         @media (min-width: 992px) {
             body { padding-top: 115px; }
@@ -292,7 +292,7 @@
         </div>
         <div class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="searchInput" placeholder="Tìm kiếm truyện tranh MangaDex...">
+            <input type="text" id="searchInput" placeholder="Tìm kiếm tên truyện, tác giả...">
         </div>
         <div class="header-right">
             <button class="user-icon-btn" id="userAccountBtn" onclick="handleUserAccountClick(event)" title="Tài khoản">
@@ -329,19 +329,35 @@
         </div>
 
         <div class="drawer-section">
-            <div class="drawer-section-title">Khám Phá MangaDex</div>
+            <div class="drawer-section-title">Khám Phá</div>
             <div class="drawer-links">
-                <a class="drawer-link active" id="homeMenuLink" onclick="loadDefaultHome(this); toggleMobileMenu();"><i class="fa-solid fa-house" style="width: 20px;"></i> Truyện Tranh Mới Nhất</a>
-                <a class="drawer-link" onclick="loadMangaList('', 'Truyện Đề Cử / Hot', this); toggleMobileMenu();"><i class="fa-solid fa-fire" style="width: 20px;"></i> Truyện Hot</a>
+                <a class="drawer-link active" id="homeMenuLink" onclick="loadDefaultHome(this); toggleMobileMenu();"><i class="fa-solid fa-house" style="width: 20px;"></i> Truyện Mới Cập Nhật</a>
+                <a class="drawer-link" onclick="loadCategory('truyen-moi', 'Truyện Mới', this); toggleMobileMenu();"><i class="fa-solid fa-fire" style="width: 20px;"></i> Truyện Hot</a>
+                <a class="drawer-link" onclick="loadCategory('dang-phat-hanh', 'Đang Phát Hành', this); toggleMobileMenu();"><i class="fa-solid fa-spinner" style="width: 20px;"></i> Đang Tiến Hành</a>
+                <a class="drawer-link" onclick="loadCategory('hoan-thanh', 'Đã Hoàn Thành', this); toggleMobileMenu();"><i class="fa-solid fa-circle-check" style="width: 20px;"></i> Hoàn Thành</a>
+            </div>
+        </div>
+
+        <div class="drawer-section">
+            <div class="drawer-section-title">Thể Loại Nổi Bật</div>
+            <div class="drawer-grid">
+                <div class="drawer-grid-item" onclick="loadGenre('action', 'Action', this); toggleMobileMenu();">Action</div>
+                <div class="drawer-grid-item" onclick="loadGenre('adventure', 'Adventure', this); toggleMobileMenu();">Adventure</div>
+                <div class="drawer-grid-item" onclick="loadGenre('romance', 'Romance', this); toggleMobileMenu();">Romance</div>
+                <div class="drawer-grid-item" onclick="loadGenre('comedy', 'Comedy', this); toggleMobileMenu();">Comedy</div>
+                <div class="drawer-grid-item" onclick="loadGenre('manga', 'Manga', this); toggleMobileMenu();">Manga</div>
+                <div class="drawer-grid-item" onclick="loadGenre('manhwa', 'Manhwa', this); toggleMobileMenu();">Manhwa</div>
+                <div class="drawer-grid-item" onclick="loadGenre('manhua', 'Manhua', this); toggleMobileMenu();">Manhua</div>
+                <div class="drawer-grid-item" onclick="loadGenre('fantasy', 'Fantasy', this); toggleMobileMenu();">Fantasy</div>
             </div>
         </div>
     </div>
 
     <div class="hero" id="heroBanner" style="display: none;">
         <div class="hero-content">
-            <span class="hero-badge"><i class="fa-solid fa-star"></i> MangaDex Đề Cử</span>
+            <span class="hero-badge"><i class="fa-solid fa-star"></i> Đề Cử Hot</span>
             <h1 class="hero-title" id="heroTitle">Đang tải...</h1>
-            <p class="hero-desc" id="heroDesc">Khám phá thế giới truyện tranh MangaDex quốc tế.</p>
+            <p class="hero-desc" id="heroDesc">Khám phá thế giới truyện tranh hấp dẫn ngay hôm nay.</p>
             <button class="btn-hero" id="heroReadBtn"><i class="fa-solid fa-book-open-reader"></i> Đọc Ngay</button>
         </div>
     </div>
@@ -355,7 +371,7 @@
         </div>
 
         <div class="comic-grid" id="comicGrid">
-            <div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Đang kết nối MangaDex API...</div>
+            <div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu truyện tranh...</div>
         </div>
 
         <div class="pagination" id="paginationBox">
@@ -370,8 +386,8 @@
             <div class="logo-icon" style="width:24px;height:24px;font-size:10px;"><i class="fa-solid fa-book-open"></i></div>
             COMIC<span>VERSE</span>
         </div>
-        <p>Thế Giới Truyện Tranh - Đọc truyện online miễn phí qua MangaDex API.</p>
-        <p style="font-size: 11px; color: #555; margin-top: 6px;">&copy; 2026 ComicVerse. Powered by MangaDex API.</p>
+        <p>Thế Giới Truyện Tranh - Đọc truyện online miễn phí, kho tàng Manga, Manhwa, Manhua đặc sắc.</p>
+        <p style="font-size: 11px; color: #555; margin-top: 6px;">&copy; 2026 ComicVerse. Powered by OTruyen API.</p>
     </footer>
 
     <div class="modal" id="comicModal">
@@ -397,7 +413,7 @@
                 </div>
                 <div class="comic-description" id="modalDesc">Đang tải mô tả...</div>
                 <div class="chapter-list-container">
-                    <div style="font-size: 12px; font-weight: 800; color: #fff;"><i class="fa-solid fa-list"></i> Danh sách chương (Tiếng Việt / Quốc tế):</div>
+                    <div style="font-size: 12px; font-weight: 800; color: #fff;"><i class="fa-solid fa-list"></i> Danh sách chương:</div>
                     <div class="chapter-list-grid" id="modalChapterList"></div>
                 </div>
             </div>
@@ -429,16 +445,16 @@
     </div>
 
     <script>
-        const MANGADEX_API = 'https://api.mangadex.org';
+        const API_BASE = 'https://otruyenapi.com/v1/api';
 
+        let currentType = 'moi';
+        let currentSlug = '';
         let currentPage = 1;
-        let currentLimit = 20;
-        let currentTitle = 'Truyện Mới Cập Nhật (MangaDex)';
-        let currentSearchQuery = '';
-        let cachedComicsList = [];
-
-        let currentComicId = null;
-        let currentComicObj = null;
+        let currentTitle = 'Truyện Mới Cập Nhật';
+        let cachedCurrentList = [];
+        
+        let currentComicData = null;
+        let currentComicSlug = '';
         let currentChaptersList = [];
         let currentChapterIndex = 0;
 
@@ -506,165 +522,140 @@
         }
 
         function getFavorites() {
-            try { return JSON.parse(localStorage.getItem('comic_favs_md') || '[]'); } catch(e) { return []; }
+            try { return JSON.parse(localStorage.getItem('comic_favs') || '[]'); } catch(e) { return []; }
         }
 
         function toggleCurrentFavorite() {
-            if (!currentComicId) return;
+            if (!currentComicSlug) return;
             let favs = getFavorites();
-            const index = favs.indexOf(currentComicId);
+            const index = favs.indexOf(currentComicSlug);
             const btn = document.getElementById('favModalBtn');
             if (index > -1) {
                 favs.splice(index, 1);
                 btn.classList.remove('active-fav');
                 showToast("Đã xóa khỏi danh sách yêu thích", "error");
             } else {
-                favs.push(currentComicId);
+                favs.push(currentComicSlug);
                 btn.classList.add('active-fav');
                 showToast("Đã thêm vào danh sách yêu thích", "success");
             }
-            localStorage.setItem('comic_favs_md', JSON.stringify(favs));
+            localStorage.setItem('comic_favs', JSON.stringify(favs));
         }
 
         function checkCurrentFavorite() {
             const btn = document.getElementById('favModalBtn');
             let favs = getFavorites();
-            if (favs.includes(currentComicId)) btn.classList.add('active-fav');
+            if (favs.includes(currentComicSlug)) btn.classList.add('active-fav');
             else btn.classList.remove('active-fav');
         }
 
         function getHistory() {
-            try { return JSON.parse(localStorage.getItem('comic_history_md') || '[]'); } catch(e) { return []; }
+            try { return JSON.parse(localStorage.getItem('comic_history') || '[]'); } catch(e) { return []; }
         }
 
         function saveHistory(comicInfo, chapterName) {
             let hist = getHistory();
-            hist = hist.filter(h => h.id !== comicInfo.id);
+            hist = hist.filter(h => h.slug !== comicInfo.slug);
             hist.unshift({
-                id: comicInfo.id,
+                slug: comicInfo.slug,
                 name: comicInfo.name,
-                cover: comicInfo.cover,
+                thumb: comicInfo.thumb_url,
                 chapter: chapterName,
                 time: new Date().toLocaleString()
             });
             if (hist.length > 20) hist.pop();
-            localStorage.setItem('comic_history_md', JSON.stringify(hist));
+            localStorage.setItem('comic_history', JSON.stringify(hist));
         }
 
         function clearAllHistory() {
             if (confirm("Xoá toàn bộ lịch sử đọc truyện?")) {
-                localStorage.setItem('comic_history_md', JSON.stringify([]));
+                localStorage.setItem('comic_history', JSON.stringify([]));
                 showToast("Đã xoá lịch sử!", "success");
                 loadHistoryPage();
             }
         }
 
         function loadFavoritesPage(el) {
+            currentType = 'favorites'; currentPage = 1; currentTitle = 'Truyện Yêu Thích';
             document.getElementById('heroBanner').style.display = 'none';
             document.getElementById('clearHistoryBtn').classList.remove('active');
             updateActiveMenu(el);
-            renderCustomList(getFavorites(), 'Truyện Yêu Thích');
+            renderCustomList(getFavorites(), currentTitle);
         }
 
         function loadHistoryPage(el) {
+            currentType = 'history'; currentPage = 1; currentTitle = 'Lịch Sử Đọc Truyện';
             document.getElementById('heroBanner').style.display = 'none';
             const clearBtn = document.getElementById('clearHistoryBtn');
             const hist = getHistory();
             if (hist.length > 0) clearBtn.classList.add('active');
             else clearBtn.classList.remove('active');
             updateActiveMenu(el);
-            renderCustomList(hist.map(h => h.id), 'Lịch Sử Đọc Truyện');
+            renderCustomList(hist.map(h => h.slug), currentTitle);
         }
 
-        async function renderCustomList(ids, title) {
+        async function renderCustomList(slugs, title) {
             document.getElementById('paginationBox').style.display = 'none';
             document.getElementById('sectionHeading').innerText = title;
             const comicGrid = document.getElementById('comicGrid');
             comicGrid.innerHTML = `<div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải...</div>`;
 
-            if (ids.length === 0) {
+            if (slugs.length === 0) {
                 comicGrid.innerHTML = `<div class="loading-state">Danh sách trống!</div>`;
                 return;
             }
 
             let items = [];
-            for (let id of ids) {
+            for (let slug of slugs) {
                 try {
-                    const res = await fetch(`${MANGADEX_API}/manga/${id}?includes[]=cover_art`);
+                    const res = await fetch(`${API_BASE}/truyen/${slug}`);
                     const data = await res.json();
-                    if (data.result === 'ok') {
-                        items.push(formatMangaData(data.data));
+                    if (data.status === 'success' && data.data?.item) {
+                        items.push(data.data.item);
                     }
                 } catch(e) {}
             }
+            cachedCurrentList = items;
             if (items.length > 0) displayComics(items);
             else comicGrid.innerHTML = `<div class="loading-state">Không tìm thấy truyện nào!</div>`;
         }
 
-        // --- LẤY DANH SÁCH TỪ MANGADEX ---
-        async function loadMangaList(query = '', title = 'Truyện Mới Cập Nhật') {
+        async function loadComics() {
             document.getElementById('paginationBox').style.display = 'flex';
             document.getElementById('clearHistoryBtn').classList.remove('active');
             const comicGrid = document.getElementById('comicGrid');
-            comicGrid.innerHTML = `<div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu từ MangaDex...</div>`;
-            document.getElementById('sectionHeading').innerText = title;
+            comicGrid.innerHTML = `<div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải danh sách truyện...</div>`;
+            document.getElementById('sectionHeading').innerText = currentTitle;
             document.getElementById('pageInfo').innerText = `Trang ${currentPage}`;
             document.getElementById('prevBtn').disabled = currentPage === 1;
 
-            let offset = (currentPage - 1) * currentLimit;
-            let url = `${MANGADEX_API}/manga?limit=${currentLimit}&offset=${offset}&includes[]=cover_art&order[latestUploadedChapter]=desc`;
-            if (query) {
-                url += `&title=${encodeURIComponent(query)}`;
+            let url = '';
+            if (currentType === 'moi') {
+                url = `${API_BASE}/danh-sach/truyen-moi?page=${currentPage}`;
+            } else if (currentType === 'category') {
+                url = `${API_BASE}/danh-sach/${currentSlug}?page=${currentPage}`;
+            } else if (currentType === 'genre') {
+                url = `${API_BASE}/the-loai/${currentSlug}?page=${currentPage}`;
+            } else if (currentType === 'search') {
+                url = `${API_BASE}/tim-kiem?keyword=${encodeURIComponent(currentSlug)}&page=${currentPage}`;
             }
 
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                if (data.result === 'ok') {
-                    let items = data.data.map(manga => formatMangaData(manga));
-                    cachedComicsList = items;
+                if (data.status === 'success') {
+                    let items = data.data.items || [];
+                    cachedCurrentList = items;
                     if (items.length > 0) {
-                        if (currentPage === 1 && !query) setupHeroBanner(items[0]);
+                        if (currentPage === 1 && currentType === 'moi') setupHeroBanner(items[0]);
                         displayComics(items);
                     } else {
                         comicGrid.innerHTML = `<div class="loading-state">Không tìm thấy truyện nào!</div>`;
                     }
                 }
             } catch (e) {
-                comicGrid.innerHTML = `<div class="loading-state">Lỗi kết nối tới MangaDex API! Vui lòng kiểm tra mạng.</div>`;
+                comicGrid.innerHTML = `<div class="loading-state">Lỗi kết nối tới OTruyen API!</div>`;
             }
-        }
-
-        function formatMangaData(manga) {
-            const attr = manga.attributes;
-            const titleObj = attr.title;
-            const title = titleObj.vi || titleObj.en || Object.values(titleObj)[0] || 'Không tên';
-            
-            const descObj = attr.description;
-            const desc = (descObj && (descObj.vi || descObj.en)) ? (descObj.vi || descObj.en) : 'Không có mô tả.';
-
-            let coverFilename = '';
-            const rel = manga.relationships.find(r => r.type === 'cover_art');
-            if (rel && rel.attributes) {
-                coverFilename = rel.attributes.fileName;
-            }
-            const coverUrl = coverFilename ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFilename}.256.jpg` : 'https://via.placeholder.com/180x260?text=ComicVerse';
-
-            let author = 'Đang cập nhật';
-            const authorRel = manga.relationships.find(r => r.type === 'author');
-            if (authorRel && authorRel.attributes) {
-                author = authorRel.attributes.name;
-            }
-
-            return {
-                id: manga.id,
-                name: title,
-                description: desc,
-                cover: coverUrl,
-                author: author,
-                status: attr.status || 'ongoing',
-                tags: attr.tags ? attr.tags.map(t => t.attributes.name.en) : []
-            };
         }
 
         function displayComics(comics) {
@@ -673,120 +664,108 @@
             comics.forEach(item => {
                 const card = document.createElement('div');
                 card.classList.add('comic-card');
-                card.onclick = () => openComicModal(item.id);
+                card.onclick = () => openComicModal(item.slug);
 
                 let removeHtml = '';
-                if (document.getElementById('sectionHeading').innerText === 'Truyện Yêu Thích') {
-                    removeHtml = `<button class="remove-card-item-btn" onclick="event.stopPropagation(); removeFav('${item.id}')"><i class="fa-solid fa-xmark"></i></button>`;
+                if (currentType === 'favorites') {
+                    removeHtml = `<button class="remove-card-item-btn" onclick="event.stopPropagation(); removeFav('${item.slug}')"><i class="fa-solid fa-xmark"></i></button>`;
                 }
+
+                const thumbUrl = `https://img.otruyenapi.com/uploads/comics/${item.thumb_url}`;
+                const latestChapter = item.chaptersLatest && item.chaptersLatest.length > 0 ? item.chaptersLatest[0].chapter_name : 'Cập nhật';
 
                 card.innerHTML = `
                     <div class="poster-wrapper">
                         ${removeHtml}
-                        <img src="${item.cover}" alt="${item.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/180x260?text=ComicVerse'">
-                        <div class="chapter-badge">MangaDex</div>
+                        <img src="${thumbUrl}" alt="${item.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/180x260?text=ComicVerse'">
+                        <div class="chapter-badge">${latestChapter}</div>
                     </div>
                     <div class="comic-details">
                         <div class="comic-title">${item.name}</div>
-                        <div class="comic-sub">${item.author}</div>
+                        <div class="comic-sub">${item.updatedAt ? new Date(item.updatedAt).toLocaleDateString('vi-VN') : ''}</div>
                     </div>
                 `;
                 comicGrid.appendChild(card);
             });
         }
 
-        function removeFav(id) {
-            let favs = getFavorites().filter(i => i !== id);
-            localStorage.setItem('comic_favs_md', JSON.stringify(favs));
+        function removeFav(slug) {
+            let favs = getFavorites().filter(s => s !== slug);
+            localStorage.setItem('comic_favs', JSON.stringify(favs));
             showToast("Đã xoá khỏi yêu thích!", "success");
             loadFavoritesPage();
         }
 
-        function setupHeroBanner(item) {
+        async function setupHeroBanner(item) {
             const heroBanner = document.getElementById('heroBanner');
-            heroBanner.style.backgroundImage = `url('${item.cover}')`;
-            document.getElementById('heroTitle').innerText = item.name;
-            document.getElementById('heroDesc').innerText = item.description;
-            document.getElementById('heroReadBtn').onclick = () => openComicModal(item.id);
-            heroBanner.style.display = 'flex';
+            try {
+                const res = await fetch(`${API_BASE}/truyen/${item.slug}`);
+                const data = await res.json();
+                if (data.status === 'success') {
+                    const comic = data.data.item;
+                    heroBanner.style.backgroundImage = `url('https://img.otruyenapi.com/uploads/comics/${comic.thumb_url}')`;
+                    document.getElementById('heroTitle').innerText = comic.name;
+                    document.getElementById('heroDesc').innerText = comic.content ? comic.content.replace(/<[^>]*>?/gm, '') : "Đọc ngay bộ truyện hot này.";
+                    document.getElementById('heroReadBtn').onclick = () => openComicModal(item.slug);
+                    heroBanner.style.display = 'flex';
+                }
+            } catch(e) { heroBanner.style.display = 'none'; }
         }
 
-        // --- XEM CHI TIẾT & CHƯƠNG TRUYỆN ---
-        async function openComicModal(id) {
-            currentComicId = id;
+        async function openComicModal(slug) {
+            currentComicSlug = slug;
             checkCurrentFavorite();
             document.getElementById('comicModal').classList.add('active');
             showComicDetailView();
 
             document.getElementById('modalTitle').innerText = "Đang tải...";
             document.getElementById('modalDesc').innerText = "...";
-            document.getElementById('modalChapterList').innerHTML = `<div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải danh sách chương...</div>`;
+            document.getElementById('modalChapterList').innerHTML = `<div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải chương...</div>`;
 
             try {
-                const res = await fetch(`${MANGADEX_API}/manga/${id}?includes[]=cover_art&includes[]=author`);
+                const res = await fetch(`${API_BASE}/truyen/${slug}`);
                 const data = await res.json();
-                if (data.result === 'ok') {
-                    const comic = formatMangaData(data.data);
-                    currentComicObj = comic;
+                if (data.status === 'success') {
+                    const comic = data.data.item;
+                    currentComicData = comic;
                     
                     document.getElementById('modalComicTitle').innerText = comic.name;
                     document.getElementById('modalTitle').innerText = comic.name;
-                    document.getElementById('modalPoster').src = comic.cover;
-                    document.getElementById('modalAuthor').innerText = `Tác giả: ${comic.author}`;
-                    document.getElementById('modalStatus').innerText = `Trạng thái: ${comic.status}`;
-                    document.getElementById('modalDesc').innerText = comic.description;
+                    document.getElementById('modalPoster').src = `https://img.otruyenapi.com/uploads/comics/${comic.thumb_url}`;
+                    document.getElementById('modalAuthor').innerText = `Tác giả: ${comic.author ? comic.author.join(', ') : 'Đang cập nhật'}`;
+                    document.getElementById('modalStatus').innerText = `Trạng thái: ${comic.status || 'Đang tiến hành'}`;
+                    document.getElementById('modalDesc').innerHTML = comic.content || 'Không có mô tả.';
 
                     const genresWrap = document.getElementById('modalGenres');
                     genresWrap.innerHTML = '';
-                    comic.tags.slice(0, 6).forEach(tag => {
-                        const span = document.createElement('span');
-                        span.className = 'meta-tag';
-                        span.innerText = tag;
-                        genresWrap.appendChild(span);
-                    });
+                    if (comic.category) {
+                        comic.category.forEach(cat => {
+                            const span = document.createElement('span');
+                            span.className = 'meta-tag';
+                            span.innerText = cat.name;
+                            genresWrap.appendChild(span);
+                        });
+                    }
 
-                    // Lấy danh sách chapter ưu tiên bản dịch tiếng Việt (vi) hoặc tiếng Anh (en)
-                    await fetchChapters(id);
+                    if (comic.chapters && comic.chapters.length > 0) {
+                        currentChaptersList = comic.chapters[0].server_data || [];
+                        renderChapterGrid(currentChaptersList);
+                        populateReaderSelect(currentChaptersList);
+                    }
                 }
             } catch(e) {
                 showToast("Không thể tải thông tin truyện!", "error");
             }
         }
 
-        async function fetchChapters(mangaId) {
-            try {
-                // Thử lấy bản dịch tiếng Việt trước
-                let res = await fetch(`${MANGADEX_API}/manga/${mangaId}/feed?translatedLanguage[]=vi&translatedLanguage[]=en&order[chapter]=asc&limit=100`);
-                let data = await res.json();
-                
-                if (data.result === 'ok') {
-                    currentChaptersList = data.data.map(ch => ({
-                        id: ch.id,
-                        chapter: ch.attributes.chapter || '?',
-                        title: ch.attributes.title || '',
-                        lang: ch.attributes.translatedLanguage
-                    }));
-
-                    renderChapterGrid(currentChaptersList);
-                    populateReaderSelect(currentChaptersList);
-                }
-            } catch(e) {
-                document.getElementById('modalChapterList').innerHTML = `<div class="loading-state">Không tìm thấy chương truyện nào!</div>`;
-            }
-        }
-
         function renderChapterGrid(chapters) {
             const listEl = document.getElementById('modalChapterList');
             listEl.innerHTML = '';
-            if (chapters.length === 0) {
-                listEl.innerHTML = `<div class="loading-state">Chưa có chương truyện nào khả dụng.</div>`;
-                return;
-            }
             chapters.forEach((ch, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'chapter-btn';
-                btn.innerText = `Ch. ${ch.chapter} (${ch.lang.toUpperCase()})`;
-                btn.onclick = () => loadChapterById(index);
+                btn.innerText = `Chương ${ch.chapter_name}`;
+                btn.onclick = () => loadChapterByIndex(index);
                 listEl.appendChild(btn);
             });
         }
@@ -797,12 +776,12 @@
             chapters.forEach((ch, index) => {
                 const opt = document.createElement('option');
                 opt.value = index;
-                opt.innerText = `Chương ${ch.chapter} (${ch.lang.toUpperCase()})`;
+                opt.innerText = `Chương ${ch.chapter_name}`;
                 selectEl.appendChild(opt);
             });
         }
 
-        async function loadChapterById(index) {
+        async function loadChapterByIndex(index) {
             if (index < 0 || index >= currentChaptersList.length) return;
             currentChapterIndex = index;
             const chapter = currentChaptersList[index];
@@ -811,25 +790,26 @@
             showComicReaderView();
 
             const imgContainer = document.getElementById('comicImagesContainer');
-            imgContainer.innerHTML = `<div class="loading-state" style="color:#fff;"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải trang ảnh...</div>`;
-            document.getElementById('modalComicTitle').innerText = `${currentComicObj.name} - Ch. ${chapter.chapter}`;
+            imgContainer.innerHTML = `<div class="loading-state" style="color:#fff;"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải trang truyện...</div>`;
+            document.getElementById('modalComicTitle').innerText = `${currentComicData.name} - Chương ${chapter.chapter_name}`;
 
-            saveHistory(currentComicObj, `Chương ${chapter.chapter}`);
+            saveHistory(currentComicData, `Chương ${chapter.chapter_name}`);
 
             try {
-                const res = await fetch(`${MANGADEX_API}/at-home/server/${chapter.id}`);
+                const res = await fetch(chapter.chapter_api_data);
                 const data = await res.json();
-                if (data.result === 'ok') {
-                    const baseUrl = data.baseUrl;
-                    const hash = data.chapter.hash;
-                    const images = data.chapter.data; // Mảng chứa tên file ảnh (chế độ server chuẩn) hoặc dataSaver
+                if (data.status === 'success') {
+                    const item = data.data.item;
+                    const domainCdn = item.domain_cdn;
+                    const chapterPath = item.chapter_path;
+                    const images = item.chapter_image || [];
 
                     imgContainer.innerHTML = '';
-                    images.forEach(filename => {
+                    images.forEach(imgObj => {
                         const img = document.createElement('img');
                         img.className = 'comic-page-img';
                         img.loading = 'lazy';
-                        img.src = `${baseUrl}/data/${hash}/${filename}`;
+                        img.src = `${domainCdn}/${chapterPath}/${img.image_file}`;
                         img.onerror = function() { this.style.display = 'none'; };
                         imgContainer.appendChild(img);
                     });
@@ -846,7 +826,7 @@
             document.getElementById('comicReaderView').style.display = 'none';
             document.getElementById('readerToolbar').style.display = 'none';
             document.getElementById('backToDetailBtn').style.display = 'none';
-            if (currentComicObj) document.getElementById('modalComicTitle').innerText = currentComicObj.name;
+            if (currentComicData) document.getElementById('modalComicTitle').innerText = currentComicData.name;
         }
 
         function showComicReaderView() {
@@ -857,33 +837,23 @@
         }
 
         function prevChapter() {
-            if (currentChapterIndex > 0) loadChapterById(currentChapterIndex - 1);
+            if (currentChapterIndex > 0) loadChapterByIndex(currentChapterIndex - 1);
             else showToast("Đã là chương đầu tiên!", "error");
         }
 
         function nextChapter() {
-            if (currentChapterIndex + 1 < currentChaptersList.length) loadChapterById(currentChapterIndex + 1);
+            if (currentChapterIndex + 1 < currentChaptersList.length) loadChapterByIndex(currentChapterIndex + 1);
             else showToast("Đã là chương mới nhất!", "error");
         }
 
         function onChapterSelectChange(sel) {
-            loadChapterById(parseInt(sel.value));
+            loadChapterByIndex(parseInt(sel.value));
         }
 
-        function loadDefaultHome(el) { 
-            currentPage = 1; 
-            currentSearchQuery = '';
-            document.getElementById('heroBanner').style.display = 'flex'; 
-            updateActiveMenu(el); 
-            loadMangaList('', 'Truyện Mới Cập Nhật'); 
-        }
-
-        function changePage(delta) { 
-            currentPage += delta; 
-            if (currentPage < 1) currentPage = 1; 
-            loadMangaList(currentSearchQuery, currentTitle); 
-            window.scrollTo({ top: 150, behavior: 'smooth' }); 
-        }
+        function loadDefaultHome(el) { currentType = 'moi'; currentSlug = ''; currentPage = 1; currentTitle = 'Truyện Mới Cập Nhật'; document.getElementById('heroBanner').style.display = 'flex'; updateActiveMenu(el); loadComics(); }
+        function loadCategory(slug, title, el) { currentType = 'category'; currentSlug = slug; currentPage = 1; currentTitle = title; document.getElementById('heroBanner').style.display = 'none'; updateActiveMenu(el); loadComics(); }
+        function loadGenre(slug, title, el) { currentType = 'genre'; currentSlug = slug; currentPage = 1; currentTitle = title; document.getElementById('heroBanner').style.display = 'none'; updateActiveMenu(el); loadComics(); }
+        function changePage(delta) { currentPage += delta; if (currentPage < 1) currentPage = 1; loadComics(); window.scrollTo({ top: 150, behavior: 'smooth' }); }
 
         function toggleMobileMenu() {
             document.getElementById('menuDrawer').classList.toggle('active');
@@ -891,7 +861,7 @@
         }
 
         function updateActiveMenu(el) {
-            document.querySelectorAll('.drawer-link').forEach(e => e.classList.remove('active'));
+            document.querySelectorAll('.drawer-link, .drawer-grid-item').forEach(e => e.classList.remove('active'));
             if (el) el.classList.add('active');
         }
 
@@ -901,16 +871,15 @@
             const query = e.target.value.trim();
             searchTimeout = setTimeout(() => {
                 if (query.length > 0) {
-                    currentSearchQuery = query;
-                    currentPage = 1;
+                    currentType = 'search'; currentSlug = query; currentPage = 1;
                     currentTitle = `Kết quả tìm kiếm: "${query}"`;
                     document.getElementById('heroBanner').style.display = 'none';
                     updateActiveMenu(null);
-                    loadMangaList(query, currentTitle);
+                    loadComics();
                 } else {
                     loadDefaultHome(document.getElementById('homeMenuLink'));
                 }
-            }, 600);
+            }, 500);
         });
 
         const modal = document.getElementById('comicModal');
