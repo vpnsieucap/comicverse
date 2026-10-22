@@ -21,6 +21,15 @@ module.exports = async (req, res) => {
             }
         });
 
+        const contentType = response.headers.get('content-type') || '';
+
+        // Nếu là ảnh hoặc file nhị phân, trả về Buffer trực tiếp qua res.end()
+        if (contentType.includes('image') || contentType.includes('application/octet-stream')) {
+            const arrayBuffer = await response.arrayBuffer();
+            res.setHeader('Content-Type', contentType);
+            return res.status(response.status).end(Buffer.from(arrayBuffer));
+        }
+
         const textResponse = await response.text();
 
         try {
