@@ -237,7 +237,7 @@
         }
         .comic-page-img {
             width: 100%; max-width: 800px; height: auto; display: block; margin: 0 auto; user-select: none; -webkit-user-drag: none;
-            min-height: 400px; background: #111; /* Khung giữ chỗ tránh sập layout khi chưa load */
+            min-height: 400px; background: #111;
         }
 
         .reader-toolbar {
@@ -809,15 +809,28 @@
             }
         }
 
+        // ĐÃ SỬA: Lọc bỏ link ngoài và gộp trùng chương để không bị lỗi chết chương
         async function loadChapters(mangaId) {
             try {
                 const data = await fetchApi(`${API_BASE}/manga/${mangaId}/feed?translatedLanguage[]=vi&order[chapter]=desc&limit=500`);
                 if (data.result === 'ok') {
-                    currentChaptersList = data.data.map(ch => ({
-                        id: ch.id,
-                        chapter_name: ch.attributes.chapter || 'One-shot',
-                        title: ch.attributes.title || ''
-                    }));
+                    const seenChapters = new Set();
+                    currentChaptersList = [];
+
+                    for (let ch of data.data) {
+                        if (ch.attributes.externalUrl) continue; // Bỏ qua các chương link ngoài
+                        const chNum = ch.attributes.chapter || 'One-shot';
+                        
+                        if (!seenChapters.has(chNum)) {
+                            seenChapters.add(chNum);
+                            currentChaptersList.push({
+                                id: ch.id,
+                                chapter_name: chNum,
+                                title: ch.attributes.title || ''
+                            });
+                        }
+                    }
+
                     renderChapterGrid(currentChaptersList);
                     populateReaderSelect(currentChaptersList);
                 }
@@ -830,7 +843,7 @@
             const listEl = document.getElementById('modalChapterList');
             listEl.innerHTML = '';
             if (chapters.length === 0) {
-                listEl.innerHTML = `<div class="loading-state">Chưa có chương dịch tiếng Việt.</div>`;
+                listEl.innerHTML = `<div class="loading-state">Chưa có chương dịch tiếng Việt hợp lệ.</div>`;
                 return;
             }
             chapters.forEach((ch, index) => {
