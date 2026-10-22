@@ -237,6 +237,7 @@
         }
         .comic-page-img {
             width: 100%; max-width: 800px; height: auto; display: block; margin: 0 auto; user-select: none; -webkit-user-drag: none;
+            min-height: 400px; background: #111; /* Khung giữ chỗ tránh sập layout khi chưa load */
         }
 
         .reader-toolbar {
@@ -657,7 +658,6 @@
                 coverFilename = coverRel.attributes.fileName;
             }
             
-            // ĐÃ SỬA: Bọc link ảnh bìa qua Proxy để né Cloudflare
             const rawCoverUrl = coverFilename ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFilename}.256.jpg` : '';
             const thumbUrl = rawCoverUrl ? `/api/proxy?url=${encodeURIComponent(rawCoverUrl)}` : '';
 
@@ -853,6 +853,7 @@
             });
         }
 
+        // TỐI ƯU MỚI: Load từng tấm ảnh khi cuộn tới kết hợp 3 lớp Fallback thông minh
         async function loadChapterByIndex(index) {
             if (index < 0 || index >= currentChaptersList.length) return;
             currentChapterIndex = index;
@@ -862,7 +863,7 @@
             showComicReaderView();
 
             const imgContainer = document.getElementById('comicImagesContainer');
-            imgContainer.innerHTML = `<div class="loading-state" style="color:#fff;"><i class="fa-solid fa-spinner fa-spin"></i> Đang kết nối máy chủ MangaDex...</div>`;
+            imgContainer.innerHTML = `<div class="loading-state" style="color:#fff;"><i class="fa-solid fa-spinner fa-spin"></i> Đang kết nối máy chủ ảnh MangaDex...</div>`;
             document.getElementById('modalComicTitle').innerText = `${currentComicData.name} - Chương ${chapter.chapter_name}`;
 
             saveHistory(currentComicData, `Chương ${chapter.chapter_name}`);
@@ -873,7 +874,7 @@
                 if (serverData && serverData.result === 'ok') {
                     const baseUrl = serverData.baseUrl;
                     const hash = serverData.chapter.hash;
-                    const images = serverData.chapter.data || serverData.chapter.dataSaver || [];
+                    const images = serverData.chapter.dataSaver || serverData.chapter.data || [];
 
                     imgContainer.innerHTML = '';
                     if (images.length === 0) {
@@ -881,25 +882,52 @@
                         return;
                     }
 
-                    // ĐÃ SỬA: Bọc link ảnh đọc truyện qua Proxy của server
-                    images.forEach(filename => {
+                    // Trình quan sát Intersection Observer để load ảnh khi cuộn tới gần
+                    const observer = new IntersectionObserver((entries, observer) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                const img = entry.target;
+                                if (!img.src && img.dataset.src) {
+                                    img.src = img.dataset.src;
+                                }
+                                observer.unobserve(img);
+                            }
+                        });
+                    }, {
+                        root: null,
+                        rootMargin: '300px',
+                        threshold: 0.01
+                    });
+
+                    images.forEach((filename) => {
                         const img = document.createElement('img');
                         img.className = 'comic-page-img';
-                        img.loading = 'lazy';
                         
-                        const rawImgUrl = `${baseUrl}/data/${hash}/${filename}`;
-                        img.src = `/api/proxy?url=${encodeURIComponent(rawImgUrl)}`;
+                        const saverUrl = `${baseUrl}/data-saver/${hash}/${filename}`;
+                        const originalUrl = `${baseUrl}/data/${hash}/${filename}`;
+                        
+                        // Chưa gán src vội, lưu vào data-src để chờ cuộn đến mới tải
+                        img.dataset.src = saverUrl;
                         
                         img.onerror = function() {
-                            if (!this.dataset.retried) {
-                                this.dataset.retried = "true";
-                                const rawSaverUrl = `${baseUrl}/data-saver/${hash}/${filename}`;
-                                this.src = `/api/proxy?url=${encodeURIComponent(rawSaverUrl)}`;
+                            if (!this.dataset.stage) {
+                                // Lớp 1 lỗi -> Thử bản gốc trực tiếp
+                                this.dataset.stage = "data";
+                                this.dataset.src = originalUrl;
+                                this.src = originalUrl;
+                            } else if (this.dataset.stage === "data") {
+                                // Lớp 2 lỗi (Node bị chặn) -> Bọc qua Proxy của bạn
+                                this.dataset.stage = "proxy";
+                                const proxyUrl = `/api/proxy?url=${encodeURIComponent(originalUrl)}`;
+                                this.dataset.src = proxyUrl;
+                                this.src = proxyUrl;
                             } else {
                                 this.style.display = 'none';
                             }
                         };
+
                         imgContainer.appendChild(img);
+                        observer.observe(img);
                     });
 
                     document.querySelector('.comic-reader-body').scrollTop = 0;
@@ -936,7 +964,7 @@
             else showToast("Đã là chương mới nhất!", "error");
         }
 
-        function onChapterSelectCommand(sel) {
+        function onChapterSelectChange(sel) {
             loadChapterByIndex(parseInt(sel.value));
         }
 
