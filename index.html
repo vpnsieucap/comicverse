@@ -174,13 +174,25 @@
         }
         .comic-card:hover { transform: translateY(-4px); border-color: var(--border-hover); box-shadow: 0 12px 30px rgba(99, 102, 241, 0.35); }
         
-        .poster-wrapper { position: relative; width: 100%; height: 210px; overflow: hidden; background: #15151f; }
-        .comic-card img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); }
+        .poster-wrapper { 
+            position: relative; width: 100%; height: 210px; overflow: hidden; 
+            background: linear-gradient(135deg, #181824 0%, #0d0d12 100%); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; text-align: center;
+        }
+        .poster-fallback-content {
+            display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-muted); z-index: 1;
+        }
+        .poster-fallback-content i { font-size: 24px; color: #818cf8; }
+        .poster-fallback-content span { font-size: 11px; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; color: #cbd5e1; }
+
+        .comic-card img { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; transition: var(--transition); 
+        }
         .comic-card:hover img { transform: scale(1.08); }
         
         .chapter-badge {
             position: absolute; bottom: 8px; left: 8px; right: 8px; background: rgba(12, 12, 18, 0.85); backdrop-filter: blur(6px);
-            border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; text-align: center;
+            border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; text-align: center; z-index: 3;
         }
         .comic-details { padding: 10px; }
         .comic-title { font-size: 12px; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.6em; line-height: 1.3; margin-bottom: 4px; color: #f8fafc; }
@@ -236,7 +248,7 @@
             padding: 20px; overflow-y: auto; flex: 1; background: #0f0f16; display: flex; flex-direction: column; gap: 16px;
         }
         .comic-info-header { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
-        .comic-poster-lg { width: 140px; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); flex-shrink: 0; }
+        .comic-poster-lg { width: 140px; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); flex-shrink: 0; background: #181824; }
         .comic-info-meta { flex: 1; display: flex; flex-direction: column; gap: 8px; }
         .comic-info-title { font-size: 18px; font-weight: 900; color: #fff; }
         .meta-tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
@@ -388,7 +400,7 @@
 
             <div class="comic-detail-box" id="comicDetailView">
                 <div class="comic-info-header">
-                    <img class="comic-poster-lg" id="modalPoster" src="" alt="" onerror="this.src='https://via.placeholder.com/180x260?text=ComicVerse'">
+                    <img class="comic-poster-lg" id="modalPoster" src="" alt="" onerror="this.style.display='none'">
                     <div class="comic-info-meta">
                         <div class="comic-info-title" id="modalTitle">Đang tải...</div>
                         <div style="font-size: 11px; color: var(--text-muted);" id="modalAuthor">Tác giả: Đang cập nhật</div>
@@ -698,7 +710,11 @@
                 card.innerHTML = `
                     <div class="poster-wrapper">
                         ${removeHtml}
-                        <img src="${item.thumb}" alt="${item.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/180x260?text=ComicVerse'">
+                        <div class="poster-fallback-content">
+                            <i class="fa-solid fa-book-open"></i>
+                            <span>${item.name}</span>
+                        </div>
+                        ${item.thumb ? `<img src="${item.thumb}" alt="${item.name}" loading="lazy" onerror="this.style.display='none'">` : ''}
                         <div class="chapter-badge">Tiếng Việt</div>
                     </div>
                     <div class="comic-details">
@@ -719,7 +735,9 @@
 
         async function setupHeroBanner(item) {
             const heroBanner = document.getElementById('heroBanner');
-            heroBanner.style.backgroundImage = `url('${item.thumb}')`;
+            if (item.thumb) {
+                heroBanner.style.backgroundImage = `url('${item.thumb}')`;
+            }
             document.getElementById('heroTitle').innerText = item.name;
             document.getElementById('heroDesc').innerText = item.description;
             document.getElementById('heroReadBtn').onclick = () => openComicModal(item.id);
@@ -745,7 +763,13 @@
                     
                     document.getElementById('modalComicTitle').innerText = comic.name;
                     document.getElementById('modalTitle').innerText = comic.name;
-                    document.getElementById('modalPoster').src = comic.thumb;
+                    const posterImg = document.getElementById('modalPoster');
+                    if (comic.thumb) {
+                        posterImg.style.display = 'block';
+                        posterImg.src = comic.thumb;
+                    } else {
+                        posterImg.style.display = 'none';
+                    }
                     
                     const authorRel = manga.relationships.find(r => r.type === 'author');
                     const authorName = authorRel && authorRel.attributes ? authorRel.attributes.name : 'Đang cập nhật';
