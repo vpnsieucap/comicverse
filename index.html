@@ -328,7 +328,7 @@
             </div>
         </div>
 
-        <!-- Các mục menu đã được sửa chuẩn xác với endpoint OTruyen API -->
+        <!-- Menu chuẩn xác với endpoint của OTruyen API -->
         <div class="drawer-section">
             <div class="drawer-section-title">Khám Phá</div>
             <div class="drawer-links">
@@ -448,28 +448,18 @@
     <script>
         const API_BASE = 'https://otruyenapi.com/v1/api';
 
-        // Hàm fetch thông minh với hệ thống đa Proxy xoay vòng chống nghẽn / lỗi mạng
+        // Hàm fetch chạy qua Vercel Serverless Proxy (/api/proxy) cực kỳ mượt mà và an toàn
         async function fetchApi(url) {
+            try {
+                const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+                const res = await fetch(proxyUrl);
+                if (res.ok) return await res.json();
+            } catch (e) {}
+
             try {
                 const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
                 if (res.ok) return await res.json();
             } catch (e) {}
-
-            const proxies = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-                `https://corsproxy.io/?${encodeURIComponent(url)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
-            ];
-
-            for (let proxyUrl of proxies) {
-                try {
-                    const res = await fetch(proxyUrl);
-                    if (res.ok) {
-                        const text = await res.text();
-                        return JSON.parse(text);
-                    }
-                } catch (err) {}
-            }
 
             throw new Error("Lỗi kết nối API");
         }
