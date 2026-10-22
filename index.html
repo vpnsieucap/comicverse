@@ -859,21 +859,22 @@
             showComicReaderView();
 
             const imgContainer = document.getElementById('comicImagesContainer');
-            imgContainer.innerHTML = `<div class="loading-state" style="color:#fff;"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải trang truyện từ MangaDex...</div>`;
+            imgContainer.innerHTML = `<div class="loading-state" style="color:#fff;"><i class="fa-solid fa-spinner fa-spin"></i> Đang kết nối máy chủ MangaDex...</div>`;
             document.getElementById('modalComicTitle').innerText = `${currentComicData.name} - Chương ${chapter.chapter_name}`;
 
             saveHistory(currentComicData, `Chương ${chapter.chapter_name}`);
 
             try {
                 const serverData = await fetchApi(`${API_BASE}/at-home/server/${chapter.id}`);
-                if (serverData.result === 'ok') {
+                
+                if (serverData && serverData.result === 'ok') {
                     const baseUrl = serverData.baseUrl;
                     const hash = serverData.chapter.hash;
                     const images = serverData.chapter.data || serverData.chapter.dataSaver || [];
 
                     imgContainer.innerHTML = '';
                     if (images.length === 0) {
-                        imgContainer.innerHTML = `<div class="loading-state" style="color:#ef4444;">Không tìm thấy dữ liệu ảnh cho chương này!</div>`;
+                        imgContainer.innerHTML = `<div class="loading-state" style="color:#ef4444;">Chương này không có dữ liệu ảnh!</div>`;
                         return;
                     }
 
@@ -882,16 +883,24 @@
                         img.className = 'comic-page-img';
                         img.loading = 'lazy';
                         img.src = `${baseUrl}/data/${hash}/${filename}`;
+                        
                         img.onerror = function() {
-                            this.src = `${baseUrl}/data-saver/${hash}/${filename}`;
+                            if (!this.dataset.retried) {
+                                this.dataset.retried = "true";
+                                this.src = `${baseUrl}/data-saver/${hash}/${filename}`;
+                            } else {
+                                this.style.display = 'none';
+                            }
                         };
                         imgContainer.appendChild(img);
                     });
 
                     document.querySelector('.comic-reader-body').scrollTop = 0;
+                } else {
+                    imgContainer.innerHTML = `<div class="loading-state" style="color:#ef4444;">Không thể lấy đường dẫn máy chủ ảnh từ MangaDex!</div>`;
                 }
             } catch(e) {
-                imgContainer.innerHTML = `<div class="loading-state" style="color:#ef4444;">Lỗi tải ảnh chương truyện!</div>`;
+                imgContainer.innerHTML = `<div class="loading-state" style="color:#ef4444;">Lỗi kết nối tới máy chủ ảnh: ${e.message}</div>`;
             }
         }
 
@@ -920,7 +929,7 @@
             else showToast("Đã là chương mới nhất!", "error");
         }
 
-        function onChapterSelectChange(sel) {
+        function onChapterSelectCommand(sel) {
             loadChapterByIndex(parseInt(sel.value));
         }
 
