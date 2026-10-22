@@ -328,13 +328,14 @@
             </div>
         </div>
 
+        <!-- Các mục menu đã được sửa chuẩn xác với endpoint OTruyen API -->
         <div class="drawer-section">
             <div class="drawer-section-title">Khám Phá</div>
             <div class="drawer-links">
                 <a class="drawer-link active" id="homeMenuLink" onclick="loadDefaultHome(this); toggleMobileMenu();"><i class="fa-solid fa-house" style="width: 20px;"></i> Truyện Mới Cập Nhật</a>
-                <a class="drawer-link" onclick="loadCategory('truyen-moi', 'Truyện Mới', this); toggleMobileMenu();"><i class="fa-solid fa-fire" style="width: 20px;"></i> Truyện Hot</a>
-                <a class="drawer-link" onclick="loadCategory('dang-phat-hanh', 'Đang Phát Hành', this); toggleMobileMenu();"><i class="fa-solid fa-spinner" style="width: 20px;"></i> Đang Tiến Hành</a>
-                <a class="drawer-link" onclick="loadCategory('hoan-thanh', 'Đã Hoàn Thành', this); toggleMobileMenu();"><i class="fa-solid fa-circle-check" style="width: 20px;"></i> Hoàn Thành</a>
+                <a class="drawer-link" onclick="loadCategory('dang-phat-hanh', 'Đang Phát Hành', this); toggleMobileMenu();"><i class="fa-solid fa-spinner" style="width: 20px;"></i> Đang Phát Hành</a>
+                <a class="drawer-link" onclick="loadCategory('hoan-thanh', 'Đã Hoàn Thành', this); toggleMobileMenu();"><i class="fa-solid fa-circle-check" style="width: 20px;"></i> Đã Hoàn Thành</a>
+                <a class="drawer-link" onclick="loadCategory('sap-ra-mat', 'Sắp Ra Mắt', this); toggleMobileMenu();"><i class="fa-solid fa-clock" style="width: 20px;"></i> Sắp Ra Mắt</a>
             </div>
         </div>
 
@@ -447,22 +448,27 @@
     <script>
         const API_BASE = 'https://otruyenapi.com/v1/api';
 
-        // Hàm fetch thông minh tự động dùng CORS Proxy dự phòng nếu bị trình duyệt/mạng chặn
+        // Hàm fetch thông minh với hệ thống đa Proxy xoay vòng chống nghẽn / lỗi mạng
         async function fetchApi(url) {
             try {
                 const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
                 if (res.ok) return await res.json();
             } catch (e) {}
 
-            try {
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-                const resProxy = await fetch(proxyUrl);
-                if (resProxy.ok) {
-                    const text = await resProxy.text();
-                    return JSON.parse(text);
-                }
-            } catch (err) {
-                console.error("Proxy error:", err);
+            const proxies = [
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+                `https://corsproxy.io/?${encodeURIComponent(url)}`,
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+            ];
+
+            for (let proxyUrl of proxies) {
+                try {
+                    const res = await fetch(proxyUrl);
+                    if (res.ok) {
+                        const text = await res.text();
+                        return JSON.parse(text);
+                    }
+                } catch (err) {}
             }
 
             throw new Error("Lỗi kết nối API");
@@ -663,7 +669,6 @@
             try {
                 const data = await fetchApi(url);
                 if (data.status === 'success') {
-                    // Xử lý linh hoạt cấu trúc trả về của OTruyen (/home hoặc /danh-sach)
                     let items = data.data.items || data.data.data?.items || [];
                     cachedCurrentList = items;
                     if (items.length > 0) {
