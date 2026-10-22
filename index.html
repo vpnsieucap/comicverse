@@ -633,7 +633,7 @@
             if (coverRel && coverRel.attributes) {
                 coverFilename = coverRel.attributes.fileName;
             }
-            const thumbUrl = coverFilename ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFilename}.256.jpg` : 'https://via.placeholder.com/180x260?text=ComicVerse';
+            const thumbUrl = coverFilename ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFilename}` : 'https://via.placeholder.com/180x260?text=ComicVerse';
 
             return {
                 id: manga.id,
