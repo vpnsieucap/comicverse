@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ComicVerse - Thế Giới Truyện Tranh</title>
+    <meta name="description" content="Trải nghiệm đọc truyện tranh trực tuyến đỉnh cao, chất lượng cao, cập nhật liên tục hoàn toàn miễn phí tại ComicVerse!">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+            --bg-color: #060609;
+            --header-bg: rgba(6, 6, 9, 0.9);
+            --card-bg: #121218;
+            --card-hover: #1c1c26;
+            --text-color: #ffffff;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(99, 102, 241, 0.4);
+            --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.07) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(147, 51, 234, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(15, 15, 25, 1) 0%, var(--bg-color) 100%);
+            background-attachment: fixed;
+            color: var(--text-color);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            padding-top: 105px;
+            transition: padding-top 0.3s ease;
+        }
+
+        body.logged-in { padding-top: 70px; }
+
+        .data-notice-bar {
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            color: #fff; text-align: center; font-size: 11px; font-weight: 700;
+            padding: 8px 14px; display: flex; justify-content: center; align-items: center; gap: 6px;
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1002;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5); line-height: 1.4;
+        }
+        .data-notice-bar span { text-decoration: underline; cursor: pointer; font-weight: 900; }
+        body.logged-in .data-notice-bar { display: none !important; }
+
+        header {
+            position: fixed; top: 33px; left: 0; width: 100%;
+            background: var(--header-bg); backdrop-filter: blur(20px);
+            z-index: 1000; border-bottom: 1px solid var(--border-color);
+            padding: 0 8px; display: flex; justify-content: space-between; align-items: center;
+            gap: 6px; height: 70px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            transition: top 0.3s ease;
+        }
+        body.logged-in header { top: 0; }
+
+        .header-left { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .header-right { display: flex; align-items: center; gap: 4px; flex-shrink: 0; position: relative; }
+
+        .menu-toggle-btn {
+            background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color);
+            color: #fff; width: 34px; height: 34px; border-radius: 8px; font-size: 13px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition);
+        }
+        .menu-toggle-btn:hover { background: var(--primary-color); border-color: var(--primary-color); box-shadow: 0 0 15px rgba(99,102,241,0.4); }
+
+        .logo { display: flex; align-items: center; gap: 6px; text-decoration: none; cursor: pointer; }
+        .logo-icon {
+            width: 30px; height: 30px; background: var(--primary-gradient); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+        }
+        .logo-text { font-size: 13px; font-weight: 900; color: #ffffff; text-transform: uppercase; white-space: nowrap; }
+        .logo-text span { color: #818cf8; text-shadow: 0 0 12px rgba(99, 102, 241, 0.5); }
+
+        .search-box { position: relative; display: flex; align-items: center; flex: 1; min-width: 0; margin: 0 4px; }
+        .search-box input {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color);
+            padding: 7px 10px 7px 28px; border-radius: 18px; color: #fff; outline: none; width: 100%; font-size: 11px;
+            transition: var(--transition);
+        }
+        .search-box input:focus { border-color: var(--primary-color); background: rgba(12, 12, 18, 0.95); box-shadow: 0 0 18px rgba(99, 102, 241, 0.4); }
+        .search-box i { position: absolute; left: 10px; color: var(--text-muted); font-size: 11px; pointer-events: none; }
+
+        .user-icon-btn {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color);
+            color: #fff; width: 34px; height: 34px; border-radius: 50%; font-size: 15px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); position: relative;
+        }
+        .user-icon-btn:hover, .user-icon-btn.active { background: var(--primary-gradient); border-color: var(--primary-color); box-shadow: 0 0 15px rgba(99, 102, 241, 0.5); }
+        body.logged-in .user-icon-btn::after {
+            content: ''; position: absolute; bottom: 1px; right: 1px; width: 8px; height: 8px; background: #22c55e; border: 2px solid #060609; border-radius: 50%;
+        }
+
+        .user-menu-dropdown {
+            position: absolute; top: 42px; right: 0; background: #0f0f17; border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 12px; min-width: 170px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+            display: none; flex-direction: column; gap: 10px; z-index: 1010;
+        }
+        .user-menu-dropdown.active { display: flex; }
+        .user-info-text { font-size: 11px; color: var(--text-muted); border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+        .user-info-text strong { color: #fff; font-size: 13px; display: block; margin-top: 2px; }
+
+        .dropdown-btn {
+            background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444;
+            padding: 8px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .dropdown-btn:hover { background: #ef4444; color: #fff; }
+
+        .mobile-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); z-index: 2500; opacity: 0; visibility: hidden; transition: var(--transition); }
+        .mobile-menu-overlay.active { opacity: 1; visibility: visible; }
+
+        .mobile-menu-drawer {
+            position: fixed; top: 0; left: -300px; width: 280px; height: 100%; background: #0d0d12; z-index: 2600;
+            box-shadow: 15px 0 40px rgba(0,0,0,0.95); border-right: 1px solid var(--border-color);
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; overflow-y: auto;
+        }
+        .mobile-menu-drawer.active { left: 0; }
+        .drawer-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border-color); }
+        .drawer-logo { font-size: 16px; font-weight: 900; color: #fff; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+        .drawer-logo span { color: #818cf8; }
+        .drawer-close { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: #aaa; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        .drawer-section { padding: 16px 20px; border-bottom: 1px solid var(--border-color); }
+        .drawer-section-title { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1.2px; }
+        .drawer-links { display: flex; flex-direction: column; gap: 6px; }
+        .drawer-link {
+            color: #cbd5e1; text-decoration: none; font-size: 12px; font-weight: 600; padding: 10px 14px;
+            border-radius: 8px; background: rgba(255,255,255,0.02); cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 10px;
+        }
+        .drawer-link:hover, .drawer-link.active { background: var(--primary-gradient); color: #fff; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4); }
+
+        .hero {
+            position: relative; height: 40vh; min-height: 280px; display: flex; align-items: flex-end; padding: 24px;
+            background-size: cover; background-position: center;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, var(--bg-color) 0%, rgba(6,6,9,0.4) 50%, rgba(6,6,9,0.85) 100%);
+        }
+        .hero-content { position: relative; max-width: 700px; z-index: 2; }
+        .hero-badge { display: inline-block; background: var(--primary-gradient); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; }
+        .hero-title { font-size: 22px; font-weight: 900; margin-bottom: 8px; line-height: 1.2; text-shadow: 0 2px 15px rgba(0,0,0,0.9); }
+        .hero-desc { font-size: 11px; color: #cbd5e1; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .btn-hero { display: inline-flex; align-items: center; gap: 8px; background: var(--primary-gradient); color: #fff; padding: 10px 20px; border: none; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 25px rgba(99,102,241,0.6); }
+
+        .main-container { padding: 30px 16px 60px; max-width: 1400px; margin: 0 auto; }
+        .section-header { margin-bottom: 20px; display: flex; align-items: center; border-left: 4px solid var(--primary-color); padding-left: 12px; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+        .section-title { font-size: 17px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+
+        .clear-history-btn {
+            display: none; align-items: center; gap: 6px; background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;
+        }
+        .clear-history-btn.active { display: inline-flex; }
+
+        .remove-card-item-btn {
+            position: absolute; top: 8px; left: 8px; background: rgba(0, 0, 0, 0.75); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ef4444; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; z-index: 5;
+        }
+        .remove-card-item-btn:hover { background: #ef4444; color: #fff; }
+
+        .comic-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .comic-card {
+            background-color: var(--card-bg); border-radius: 12px; overflow: hidden; position: relative; cursor: pointer;
+            border: 1px solid var(--border-color); box-shadow: 0 6px 16px rgba(0,0,0,0.4); transition: var(--transition);
+        }
+        .comic-card:hover { transform: translateY(-4px); border-color: var(--border-hover); box-shadow: 0 12px 30px rgba(99, 102, 241, 0.35); }
+        
+        .poster-wrapper { position: relative; width: 100%; height: 210px; overflow: hidden; background: #15151f; }
+        .comic-card img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); }
+        .comic-card:hover img { transform: scale(1.08); }
+        
+        .chapter-badge {
+            position: absolute; bottom: 8px; left: 8px; right: 8px; background: rgba(12, 12, 18, 0.85); backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; text-align: center;
+        }
+        .comic-details { padding: 10px; }
+        .comic-title { font-size: 12px; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.6em; line-height: 1.3; margin-bottom: 4px; color: #f8fafc; }
+        .comic-sub { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 40px; }
+        .page-btn { background: var(--card-bg); color: #fff; border: 1px solid var(--border-color); padding: 9px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .page-btn:hover:not(:disabled) { background: var(--primary-gradient); border-color: var(--primary-color); }
+        .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .page-info { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+
+        footer { background: #040406; border-top: 1px solid var(--border-color); padding: 40px 16px; text-align: center; color: var(--text-muted); font-size: 12px; }
+        footer .footer-logo { font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 10px; display: inline-flex; align-items: center; gap: 8px; }
+        footer .footer-logo span { color: #818cf8; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 2, 4, 0.95); z-index: 3000; justify-content: center; align-items: center; overflow: hidden; }
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            position: relative; width: 100%; height: 100%; max-width: 900px; background: #0e0e14; display: flex; flex-direction: column; overflow: hidden;
+            border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #13131b;
+            border-bottom: 1px solid var(--border-color); z-index: 10; gap: 8px; flex-shrink: 0;
+        }
+        .modal-comic-title { font-size: 13px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+        
+        .modal-actions { display: flex; align-items: center; gap: 6px; }
+        .action-tool-btn {
+            background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); color: #cbd5e1;
+            padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px;
+        }
+        .action-tool-btn:hover { background: var(--primary-color); color: #fff; }
+        .action-tool-btn.active-fav { color: #ff4d4f; border-color: rgba(239,68,68,0.5); }
+        .close-btn { background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); color: #fff; width: 32px; height: 32px; border-radius: 50%; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .close-btn:hover { background: var(--primary-color); }
+
+        .comic-reader-body {
+            flex: 1; overflow-y: auto; background: #000; display: flex; flex-direction: column; align-items: center; padding: 0; position: relative;
+        }
+        .comic-page-img {
+            width: 100%; max-width: 800px; height: auto; display: block; margin: 0 auto; user-select: none; -webkit-user-drag: none;
+        }
+
+        .reader-toolbar {
+            display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #13131b; border-top: 1px solid var(--border-color); flex-shrink: 0;
+        }
+        .chapter-select { background: #1c1c28; color: #fff; border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 6px; font-size: 12px; outline: none; max-width: 200px; }
+        
+        .comic-detail-box {
+            padding: 20px; overflow-y: auto; flex: 1; background: #0f0f16; display: flex; flex-direction: column; gap: 16px;
+        }
+        .comic-info-header { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+        .comic-poster-lg { width: 140px; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); flex-shrink: 0; }
+        .comic-info-meta { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .comic-info-title { font-size: 18px; font-weight: 900; color: #fff; }
+        .meta-tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .meta-tag { font-size: 10px; padding: 4px 8px; border-radius: 6px; background: #1c1c28; color: #cbd5e1; font-weight: 600; border: 1px solid rgba(255,255,255,0.04); }
+        .comic-description { font-size: 12px; color: #94a3b8; line-height: 1.6; background: #15151f; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
+        
+        .chapter-list-container { display: flex; flex-direction: column; gap: 8px; }
+        .chapter-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; max-height: 200px; overflow-y: auto; padding-right: 4px; }
+        .chapter-btn { background: #15151f; color: #cbd5e1; border: 1px solid var(--border-color); padding: 8px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chapter-btn:hover { background: var(--primary-gradient); color: #fff; border-color: var(--primary-color); }
+
+        .loading-state { grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted); font-size: 12px; font-weight: 600; }
+
+        #toastContainer { position: fixed; bottom: 16px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast { background: #14141c; color: #fff; border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 8px; pointer-events: auto; animation: toastIn 0.3s forwards; }
+        .toast.success { border-left: 4px solid #22c55e; }
+        .toast.error { border-left: 4px solid #ef4444; }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .auth-form-group { margin-bottom: 12px; }
+        .auth-form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
+        .auth-form-group input { width: 100%; background: #15151f; border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 8px; color: #fff; font-size: 12px; outline: none; }
+        .auth-btn { width: 100%; background: var(--primary-gradient); color: #fff; border: none; padding: 11px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 12px; margin-top: 4px; }
+        .auth-switch { text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 10px; cursor: pointer; }
+        .auth-switch span { color: #818cf8; font-weight: 700; text-decoration: underline; }
+
+        @media (min-width: 992px) {
+            body { padding-top: 115px; }
+            body.logged-in { padding-top: 80px; }
+            header { padding: 0 28px; gap: 24px; height: 80px; top: 33px; }
+            body.logged-in header { top: 0; }
+            .comic-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; }
+            .poster-wrapper { height: 260px; }
+            .hero { height: 45vh; padding: 40px; }
+            .hero-title { font-size: 32px; }
+            .modal-content { max-width: 1000px; height: 90vh; border-radius: 14px; margin: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="data-notice-bar" id="dataNoticeBar">
+        <i class="fa-solid fa-triangle-exclamation"></i> Bạn nên <span onclick="openAuthModal()">Đăng Nhập</span> để lưu lịch sử đọc truyện trên thiết bị này!
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <header>
+        <div class="header-left">
+            <button class="menu-toggle-btn" onclick="toggleMobileMenu()"><i class="fa-solid fa-bars"></i></button>
+            <a class="logo" onclick="loadDefaultHome(document.getElementById('homeMenuLink'))">
+                <div class="logo-icon"><i class="fa-solid fa-book-open"></i></div>
+                <div class="logo-text">COMIC<span>VERSE</span></div>
+            </a>
+        </div>
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Tìm kiếm truyện tranh MangaDex...">
+        </div>
+        <div class="header-right">
+            <button class="user-icon-btn" id="userAccountBtn" onclick="handleUserAccountClick(event)" title="Tài khoản">
+                <i class="fa-solid fa-user"></i>
+            </button>
+            <div class="user-menu-dropdown" id="userDropdown">
+                <div class="user-info-text">
+                    Tài khoản:
+                    <strong id="usernameDisplay">Khách</strong>
+                </div>
+                <button class="dropdown-btn" onclick="logoutUser()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Đăng Xuất
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-menu-overlay" id="menuOverlay" onclick="toggleMobileMenu()"></div>
+    <div class="mobile-menu-drawer" id="menuDrawer">
+        <div class="drawer-header">
+            <div class="drawer-logo">
+                <div class="logo-icon" style="width:26px;height:26px;font-size:10px;"><i class="fa-solid fa-book-open"></i></div>
+                COMIC<span>VERSE</span>
+            </div>
+            <button class="drawer-close" onclick="toggleMobileMenu()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="drawer-section">
+            <div class="drawer-section-title">Cá Nhân</div>
+            <div class="drawer-links">
+                <a class="drawer-link" onclick="loadFavoritesPage(this); toggleMobileMenu();"><i class="fa-solid fa-heart" style="width: 20px; color: #ef4444;"></i> Truyện Yêu Thích</a>
+                <a class="drawer-link" onclick="loadHistoryPage(this); toggleMobileMenu();"><i class="fa-solid fa-clock-rotate-left" style="width: 20px;"></i> Lịch Sử Đọc Truyện</a>
+            </div>
+        </div>
+
+        <div class="drawer-section">
+            <div class="drawer-section-title">Khám Phá MangaDex</div>
+            <div class="drawer-links">
+                <a class="drawer-link active" id="homeMenuLink" onclick="loadDefaultHome(this); toggleMobileMenu();"><i class="fa-solid fa-house" style="width: 20px;"></i> Truyện Tranh Mới Nhất</a>
+                <a class="drawer-link" onclick="loadMangaList('', 'Truyện Đề Cử / Hot', this); toggleMobileMenu();"><i class="fa-solid fa-fire" style="width: 20px;"></i> Truyện Hot</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero" id="heroBanner" style="display: none;">
+        <div class="hero-content">
+            <span class="hero-badge"><i class="fa-solid fa-star"></i> MangaDex Đề Cử</span>
+            <h1 class="hero-title" id="heroTitle">Đang tải...</h1>
+            <p class="hero-desc" id="heroDesc">Khám phá thế giới truyện tranh MangaDex quốc tế.</p>
+            <button class="btn-hero" id="heroReadBtn"><i class="fa-solid fa-book-open-reader"></i> Đọc Ngay</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="section-header">
+            <h2 class="section-title" id="sectionHeading">Truyện Mới Cập Nhật</h2>
+            <button class="clear-history-btn" id="clearHistoryBtn" onclick="clearAllHistory()">
+                <i class="fa-solid fa-trash-can"></i> Xoá Lịch Sử
+            </button>
+        </div>
+
+        <div class="comic-grid" id="comicGrid">
+            <div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Đang kết nối MangaDex API...</div>
+        </div>
+
+        <div class="pagination" id="paginationBox">
+            <button class="page-btn" id="prevBtn" onclick="changePage(-1)"><i class="fa-solid fa-arrow-left"></i> Trước</button>
+            <span class="page-info" id="pageInfo">Trang 1</span>
+            <button class="page-btn" id="nextBtn" onclick="changePage(1)">Sau <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-logo">
+            <div class="logo-icon" style="width:24px;height:24px;font-size:10px;"><i class="fa-solid fa-book-open"></i></div>
+            COMIC<span>VERSE</span>
+        </div>
+        <p>Thế Giới Truyện Tranh - Đọc truyện online miễn phí qua MangaDex API.</p>
+        <p style="font-size: 11px; color: #555; margin-top: 6px;">&copy; 2026 ComicVerse. Powered by MangaDex API.</p>
+    </footer>
+
+    <div class="modal" id="comicModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-comic-title" id="modalComicTitle">Đang tải thông tin...</div>
+                <div class="modal-actions">
+                    <button class="action-tool-btn" id="favModalBtn" onclick="toggleCurrentFavorite()"><i class="fa-solid fa-heart"></i> Yêu Thích</button>
+                    <button class="action-tool-btn" id="backToDetailBtn" style="display:none;" onclick="showComicDetailView()"><i class="fa-solid fa-circle-info"></i> Thông Tin</button>
+                    <button class="close-btn" id="closeModal">&times;</button>
+                </div>
+            </div>
+
+            <div class="comic-detail-box" id="comicDetailView">
+                <div class="comic-info-header">
+                    <img class="comic-poster-lg" id="modalPoster" src="" alt="">
+                    <div class="comic-info-meta">
+                        <div class="comic-info-title" id="modalTitle">Đang tải...</div>
+                        <div style="font-size: 11px; color: var(--text-muted);" id="modalAuthor">Tác giả: Đang cập nhật</div>
+                        <div style="font-size: 11px; color: var(--text-muted);" id="modalStatus">Trạng thái: Đang tiến hành</div>
+                        <div class="meta-tags-wrap" id="modalGenres"></div>
+                    </div>
+                </div>
+                <div class="comic-description" id="modalDesc">Đang tải mô tả...</div>
+                <div class="chapter-list-container">
+                    <div style="font-size: 12px; font-weight: 800; color: #fff;"><i class="fa-solid fa-list"></i> Danh sách chương (Tiếng Việt / Quốc tế):</div>
+                    <div class="chapter-list-grid" id="modalChapterList"></div>
+                </div>
+            </div>
+
+            <div class="comic-reader-body" id="comicReaderView" style="display: none;">
+                <div id="comicImagesContainer" style="width: 100%; display: flex; flex-direction: column; align-items: center;"></div>
+            </div>
+
+            <div class="reader-toolbar" id="readerToolbar" style="display: none;">
+                <button class="action-tool-btn" onclick="prevChapter()"><i class="fa-solid fa-backward-step"></i> Chương Trước</button>
+                <select class="chapter-select" id="readerChapterSelect" onchange="onChapterSelectChange(this)"></select>
+                <button class="action-tool-btn" onclick="nextChapter()"><i class="fa-solid fa-forward-step"></i> Chương Sau</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="authModal">
+        <div class="modal-content" style="max-width: 360px; height: auto; padding: 20px; border-radius: 12px; margin: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="color: #fff; font-size: 16px; font-weight: 800;">Tên Người Dùng</h3>
+                <button class="close-btn" onclick="closeAuthModal()" style="width:28px;height:28px;font-size:12px;">&times;</button>
+            </div>
+            <div class="auth-form-group">
+                <label>Nhập tên của bạn</label>
+                <input type="text" id="authUsername" placeholder="Ví dụ: Bạn đọc...">
+            </div>
+            <button class="auth-btn" onclick="submitAuth()">Lưu & Đăng Nhập</button>
+        </div>
+    </div>
+
+    <script>
+        const MANGADEX_API = 'https://api.mangadex.org';
+
+        let currentPage = 1;
+        let currentLimit = 20;
+        let currentTitle = 'Truyện Mới Cập Nhật (MangaDex)';
+        let currentSearchQuery = '';
+        let cachedComicsList = [];
+
+        let currentComicId = null;
+        let currentComicObj = null;
+        let currentChaptersList = [];
+        let currentChapterIndex = 0;
+
+        let currentUser = localStorage.getItem('comic_user') || null;
+
+        function updateAuthUI() {
+            const disp = document.getElementById('usernameDisplay');
+            if (currentUser) {
+                disp.innerText = currentUser;
+                document.body.classList.add('logged-in');
+            } else {
+                disp.innerText = 'Khách';
+                document.body.classList.remove('logged-in');
+            }
+        }
+        updateAuthUI();
+
+        function handleUserAccountClick(event) {
+            event.stopPropagation();
+            if (currentUser) {
+                document.getElementById('userDropdown').classList.toggle('active');
+            } else {
+                openAuthModal();
+            }
+        }
+
+        function logoutUser() {
+            if (confirm("Bạn có muốn đăng xuất không?")) {
+                localStorage.removeItem('comic_user');
+                currentUser = null;
+                updateAuthUI();
+                document.getElementById('userDropdown').classList.remove('active');
+                showToast("Đã đăng xuất!", "success");
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('userDropdown');
+            const userBtn = document.getElementById('userAccountBtn');
+            if (dropdown && !dropdown.contains(e.target) && !userBtn.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}" style="color:${type === 'success' ? '#22c55e' : '#ef4444'}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function openAuthModal() { document.getElementById('authModal').classList.add('active'); }
+        function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
+
+        function submitAuth() {
+            const username = document.getElementById('authUsername').value.trim();
+            if (!username) { showToast("Vui lòng nhập tên của bạn!", "error"); return; }
+            currentUser = username;
+            localStorage.setItem('comic_user', currentUser);
+            updateAuthUI();
+            closeAuthModal();
+            showToast("Chào mừng " + currentUser + "!", "success");
+        }
+
+        function getFavorites() {
+            try { return JSON.parse(localStorage.getItem('comic_favs_md') || '[]'); } catch(e) { return []; }
+        }
+
+        function toggleCurrentFavorite() {
+            if (!currentComicId) return;
+            let favs = getFavorites();
+            const index = favs.indexOf(currentComicId);
+            const btn = document.getElementById('favModalBtn');
+            if (index > -1) {
+                favs.splice(index, 1);
+                btn.classList.remove('active-fav');
+                showToast("Đã xóa khỏi danh sách yêu thích", "error");
+            } else {
+                favs.push(currentComicId);
+                btn.classList.add('active-fav');
+                showToast("Đã thêm vào danh sách yêu thích", "success");
+            }
+            localStorage.setItem('comic_favs_md', JSON.stringify(favs));
+        }
+
+        function checkCurrentFavorite() {
+            const btn = document.getElementById('favModalBtn');
+            let favs = getFavorites();
+            if (favs.includes(currentComicId)) btn.classList.add('active-fav');
+            else btn.classList.remove('active-fav');
+        }
+
+        function getHistory() {
+            try { return JSON.parse(localStorage.getItem('comic_history_md') || '[]'); } catch(e) { return []; }
+        }
+
+        function saveHistory(comicInfo, chapterName) {
+            let hist = getHistory();
+            hist = hist.filter(h => h.id !== comicInfo.id);
+            hist.unshift({
+                id: comicInfo.id,
+                name: comicInfo.name,
+                cover: comicInfo.cover,
+                chapter: chapterName,
+                time: new Date().toLocaleString()
+            });
+            if (hist.length > 20) hist.pop();
+            localStorage.setItem('comic_history_md', JSON.stringify(hist));
+        }
+
+        function clearAllHistory() {
+            if (confirm("Xoá toàn bộ lịch sử đọc truyện?")) {
+                localStorage.setItem('comic_history_md', JSON.stringify([]));
+                showToast("Đã xoá lịch sử!", "success");
+                loadHistoryPage();
+            }
+        }
+
+        function loadFavoritesPage(el) {
+            document.getElementById('heroBanner').style.display = 'none';
+            document.getElementById('clearHistoryBtn').classList.remove('active');
+            updateActiveMenu(el);
+            renderCustomList(getFavorites(), 'Truyện Yêu Thích');
+        }
+
+        function loadHistoryPage(el) {
+            document.getElementById('heroBanner').style.display = 'none';
+            const clearBtn = document.getElementById('clearHistoryBtn');
+            const hist = getHistory();
+            if (hist.length > 0) clearBtn.classList.add('active');
+            else clearBtn.classList.remove('active');
+            updateActiveMenu(el);
+            renderCustomList(hist.map(h => h.id), 'Lịch Sử Đọc Truyện');
+        }
+
+        async function renderCustomList(ids, title) {
+            document.getElementById('paginationBox').style.display = 'none';
+            document.getElementById('sectionHeading').innerText = title;
+            const comicGrid = document.getElementById('comicGrid');
+            comicGrid.innerHTML = `<div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải...</div>`;
+
+            if (ids.length === 0) {
+                comicGrid.innerHTML = `<div class="loading-state">Danh sách trống!</div>`;
+                return;
+            }
+
+            let items = [];
+            for (let id of ids) {
+                try {
+                    const res = await fetch(`${MANGADEX_API}/manga/${id}?includes[]=cover_art`);
+                    const data = await res.json();
+                    if (data.result === 'ok') {
+                        items.push(formatMangaData(data.data));
+                    }
+                } catch(e) {}
+            }
+            if (items.length > 0) displayComics(items);
+            else comicGrid.innerHTML = `<div class="loading-state">Không tìm thấy truyện nào!</div>`;
+        }
+
+        // --- LẤY DANH SÁCH TỪ MANGADEX ---
+        async function loadMangaList(query = '', title = 'Truyện Mới Cập Nhật') {
+            document.getElementById('paginationBox').style.display = 'flex';
+            document.getElementById('clearHistoryBtn').classList.remove('active');
+            const comicGrid = document.getElementById('comicGrid');
+            comicGrid.innerHTML = `<div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu từ MangaDex...</div>`;
+            document.getElementById('sectionHeading').innerText = title;
+            document.getElementById('pageInfo').innerText = `Trang ${currentPage}`;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+
+            let offset = (currentPage - 1) * currentLimit;
+            let url = `${MANGADEX_API}/manga?limit=${currentLimit}&offset=${offset}&includes[]=cover_art&order[latestUploadedChapter]=desc`;
+            if (query) {
+                url += `&title=${encodeURIComponent(query)}`;
+            }
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.result === 'ok') {
+                    let items = data.data.map(manga => formatMangaData(manga));
+                    cachedComicsList = items;
+                    if (items.length > 0) {
+                        if (currentPage === 1 && !query) setupHeroBanner(items[0]);
+                        displayComics(items);
+                    } else {
+                        comicGrid.innerHTML = `<div class="loading-state">Không tìm thấy truyện nào!</div>`;
+                    }
+                }
+            } catch (e) {
+                comicGrid.innerHTML = `<div class="loading-state">Lỗi kết nối tới MangaDex API! Vui lòng kiểm tra mạng.</div>`;
+            }
+        }
+
+        function formatMangaData(manga) {
+            const attr = manga.attributes;
+            const titleObj = attr.title;
+            const title = titleObj.vi || titleObj.en || Object.values(titleObj)[0] || 'Không tên';
+            
+            const descObj = attr.description;
+            const desc = (descObj && (descObj.vi || descObj.en)) ? (descObj.vi || descObj.en) : 'Không có mô tả.';
+
+            let coverFilename = '';
+            const rel = manga.relationships.find(r => r.type === 'cover_art');
+            if (rel && rel.attributes) {
+                coverFilename = rel.attributes.fileName;
+            }
+            const coverUrl = coverFilename ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFilename}.256.jpg` : 'https://via.placeholder.com/180x260?text=ComicVerse';
+
+            let author = 'Đang cập nhật';
+            const authorRel = manga.relationships.find(r => r.type === 'author');
+            if (authorRel && authorRel.attributes) {
+                author = authorRel.attributes.name;
+            }
+
+            return {
+                id: manga.id,
+                name: title,
+                description: desc,
+                cover: coverUrl,
+                author: author,
+                status: attr.status || 'ongoing',
+                tags: attr.tags ? attr.tags.map(t => t.attributes.name.en) : []
+            };
+        }
+
+        function displayComics(comics) {
+            const comicGrid = document.getElementById('comicGrid');
+            comicGrid.innerHTML = '';
+            comics.forEach(item => {
+                const card = document.createElement('div');
+                card.classList.add('comic-card');
+                card.onclick = () => openComicModal(item.id);
+
+                let removeHtml = '';
+                if (document.getElementById('sectionHeading').innerText === 'Truyện Yêu Thích') {
+                    removeHtml = `<button class="remove-card-item-btn" onclick="event.stopPropagation(); removeFav('${item.id}')"><i class="fa-solid fa-xmark"></i></button>`;
+                }
+
+                card.innerHTML = `
+                    <div class="poster-wrapper">
+                        ${removeHtml}
+                        <img src="${item.cover}" alt="${item.name}" loading="lazy" onerror="this.src='https://via.placeholder.com/180x260?text=ComicVerse'">
+                        <div class="chapter-badge">MangaDex</div>
+                    </div>
+                    <div class="comic-details">
+                        <div class="comic-title">${item.name}</div>
+                        <div class="comic-sub">${item.author}</div>
+                    </div>
+                `;
+                comicGrid.appendChild(card);
+            });
+        }
+
+        function removeFav(id) {
+            let favs = getFavorites().filter(i => i !== id);
+            localStorage.setItem('comic_favs_md', JSON.stringify(favs));
+            showToast("Đã xoá khỏi yêu thích!", "success");
+            loadFavoritesPage();
+        }
+
+        function setupHeroBanner(item) {
+            const heroBanner = document.getElementById('heroBanner');
+            heroBanner.style.backgroundImage = `url('${item.cover}')`;
+            document.getElementById('heroTitle').innerText = item.name;
+            document.getElementById('heroDesc').innerText = item.description;
+            document.getElementById('heroReadBtn').onclick = () => openComicModal(item.id);
+            heroBanner.style.display = 'flex';
+        }
+
+        // --- XEM CHI TIẾT & CHƯƠNG TRUYỆN ---
+        async function openComicModal(id) {
+            currentComicId = id;
+            checkCurrentFavorite();
+            document.getElementById('comicModal').classList.add('active');
+            showComicDetailView();
+
+            document.getElementById('modalTitle').innerText = "Đang tải...";
+            document.getElementById('modalDesc').innerText = "...";
+            document.getElementById('modalChapterList').innerHTML = `<div class="loading-state"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải danh sách chương...</div>`;
+
+            try {
+                const res = await fetch(`${MANGADEX_API}/manga/${id}?includes[]=cover_art&includes[]=author`);
+                const data = await res.json();
+                if (data.result === 'ok') {
+                    const comic = formatMangaData(data.data);
+                    currentComicObj = comic;
+                    
+                    document.getElementById('modalComicTitle').innerText = comic.name;
+                    document.getElementById('modalTitle').innerText = comic.name;
+                    document.getElementById('modalPoster').src = comic.cover;
+                    document.getElementById('modalAuthor').innerText = `Tác giả: ${comic.author}`;
+                    document.getElementById('modalStatus').innerText = `Trạng thái: ${comic.status}`;
+                    document.getElementById('modalDesc').innerText = comic.description;
+
+                    const genresWrap = document.getElementById('modalGenres');
+                    genresWrap.innerHTML = '';
+                    comic.tags.slice(0, 6).forEach(tag => {
+                        const span = document.createElement('span');
+                        span.className = 'meta-tag';
+                        span.innerText = tag;
+                        genresWrap.appendChild(span);
+                    });
+
+                    // Lấy danh sách chapter ưu tiên bản dịch tiếng Việt (vi) hoặc tiếng Anh (en)
+                    await fetchChapters(id);
+                }
+            } catch(e) {
+                showToast("Không thể tải thông tin truyện!", "error");
+            }
+        }
+
+        async function fetchChapters(mangaId) {
+            try {
+                // Thử lấy bản dịch tiếng Việt trước
+                let res = await fetch(`${MANGADEX_API}/manga/${mangaId}/feed?translatedLanguage[]=vi&translatedLanguage[]=en&order[chapter]=asc&limit=100`);
+                let data = await res.json();
+                
+                if (data.result === 'ok') {
+                    currentChaptersList = data.data.map(ch => ({
+                        id: ch.id,
+                        chapter: ch.attributes.chapter || '?',
+                        title: ch.attributes.title || '',
+                        lang: ch.attributes.translatedLanguage
+                    }));
+
+                    renderChapterGrid(currentChaptersList);
+                    populateReaderSelect(currentChaptersList);
+                }
+            } catch(e) {
+                document.getElementById('modalChapterList').innerHTML = `<div class="loading-state">Không tìm thấy chương truyện nào!</div>`;
+            }
+        }
+
+        function renderChapterGrid(chapters) {
+            const listEl = document.getElementById('modalChapterList');
+            listEl.innerHTML = '';
+            if (chapters.length === 0) {
+                listEl.innerHTML = `<div class="loading-state">Chưa có chương truyện nào khả dụng.</div>`;
+                return;
+            }
+            chapters.forEach((ch, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'chapter-btn';
+                btn.innerText = `Ch. ${ch.chapter} (${ch.lang.toUpperCase()})`;
+                btn.onclick = () => loadChapterById(index);
+                listEl.appendChild(btn);
+            });
+        }
+
+        function populateReaderSelect(chapters) {
+            const selectEl = document.getElementById('readerChapterSelect');
+            selectEl.innerHTML = '';
+            chapters.forEach((ch, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.innerText = `Chương ${ch.chapter} (${ch.lang.toUpperCase()})`;
+                selectEl.appendChild(opt);
+            });
+        }
+
+        async function loadChapterById(index) {
+            if (index < 0 || index >= currentChaptersList.length) return;
+            currentChapterIndex = index;
+            const chapter = currentChaptersList[index];
+
+            document.getElementById('readerChapterSelect').value = index;
+            showComicReaderView();
+
+            const imgContainer = document.getElementById('comicImagesContainer');
+            imgContainer.innerHTML = `<div class="loading-state" style="color:#fff;"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải trang ảnh...</div>`;
+            document.getElementById('modalComicTitle').innerText = `${currentComicObj.name} - Ch. ${chapter.chapter}`;
+
+            saveHistory(currentComicObj, `Chương ${chapter.chapter}`);
+
+            try {
+                const res = await fetch(`${MANGADEX_API}/at-home/server/${chapter.id}`);
+                const data = await res.json();
+                if (data.result === 'ok') {
+                    const baseUrl = data.baseUrl;
+                    const hash = data.chapter.hash;
+                    const images = data.chapter.data; // Mảng chứa tên file ảnh (chế độ server chuẩn) hoặc dataSaver
+
+                    imgContainer.innerHTML = '';
+                    images.forEach(filename => {
+                        const img = document.createElement('img');
+                        img.className = 'comic-page-img';
+                        img.loading = 'lazy';
+                        img.src = `${baseUrl}/data/${hash}/${filename}`;
+                        img.onerror = function() { this.style.display = 'none'; };
+                        imgContainer.appendChild(img);
+                    });
+
+                    document.querySelector('.comic-reader-body').scrollTop = 0;
+                }
+            } catch(e) {
+                imgContainer.innerHTML = `<div class="loading-state" style="color:#ef4444;">Lỗi tải ảnh chương truyện!</div>`;
+            }
+        }
+
+        function showComicDetailView() {
+            document.getElementById('comicDetailView').style.display = 'flex';
+            document.getElementById('comicReaderView').style.display = 'none';
+            document.getElementById('readerToolbar').style.display = 'none';
+            document.getElementById('backToDetailBtn').style.display = 'none';
+            if (currentComicObj) document.getElementById('modalComicTitle').innerText = currentComicObj.name;
+        }
+
+        function showComicReaderView() {
+            document.getElementById('comicDetailView').style.display = 'none';
+            document.getElementById('comicReaderView').style.display = 'flex';
+            document.getElementById('readerToolbar').style.display = 'flex';
+            document.getElementById('backToDetailBtn').style.display = 'inline-flex';
+        }
+
+        function prevChapter() {
+            if (currentChapterIndex > 0) loadChapterById(currentChapterIndex - 1);
+            else showToast("Đã là chương đầu tiên!", "error");
+        }
+
+        function nextChapter() {
+            if (currentChapterIndex + 1 < currentChaptersList.length) loadChapterById(currentChapterIndex + 1);
+            else showToast("Đã là chương mới nhất!", "error");
+        }
+
+        function onChapterSelectChange(sel) {
+            loadChapterById(parseInt(sel.value));
+        }
+
+        function loadDefaultHome(el) { 
+            currentPage = 1; 
+            currentSearchQuery = '';
+            document.getElementById('heroBanner').style.display = 'flex'; 
+            updateActiveMenu(el); 
+            loadMangaList('', 'Truyện Mới Cập Nhật'); 
+        }
+
+        function changePage(delta) { 
+            currentPage += delta; 
+            if (currentPage < 1) currentPage = 1; 
+            loadMangaList(currentSearchQuery, currentTitle); 
+            window.scrollTo({ top: 150, behavior: 'smooth' }); 
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('menuDrawer').classList.toggle('active');
+            document.getElementById('menuOverlay').classList.toggle('active');
+        }
+
+        function updateActiveMenu(el) {
+            document.querySelectorAll('.drawer-link').forEach(e => e.classList.remove('active'));
+            if (el) el.classList.add('active');
+        }
+
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            searchTimeout = setTimeout(() => {
+                if (query.length > 0) {
+                    currentSearchQuery = query;
+                    currentPage = 1;
+                    currentTitle = `Kết quả tìm kiếm: "${query}"`;
+                    document.getElementById('heroBanner').style.display = 'none';
+                    updateActiveMenu(null);
+                    loadMangaList(query, currentTitle);
+                } else {
+                    loadDefaultHome(document.getElementById('homeMenuLink'));
+                }
+            }, 600);
+        });
+
+        const modal = document.getElementById('comicModal');
+        document.getElementById('closeModal').onclick = () => modal.classList.remove('active');
+        modal.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
+
+        loadDefaultHome(document.getElementById('homeMenuLink'));
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'K'].includes(e.key.toUpperCase())) || (e.ctrlKey && ['U', 'S', 'P'].includes(e.key.toUpperCase()))) {
+                e.preventDefault(); return false;
+            }
+        });
+        document.addEventListener('contextmenu', e => e.preventDefault());
+    </script>
+</body>
+</html>
