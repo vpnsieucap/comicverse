@@ -656,7 +656,10 @@
             if (coverRel && coverRel.attributes) {
                 coverFilename = coverRel.attributes.fileName;
             }
-            const thumbUrl = coverFilename ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFilename}.256.jpg` : '';
+            
+            // ĐÃ SỬA: Bọc link ảnh bìa qua Proxy để né Cloudflare
+            const rawCoverUrl = coverFilename ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFilename}.256.jpg` : '';
+            const thumbUrl = rawCoverUrl ? `/api/proxy?url=${encodeURIComponent(rawCoverUrl)}` : '';
 
             return {
                 id: manga.id,
@@ -878,16 +881,20 @@
                         return;
                     }
 
+                    // ĐÃ SỬA: Bọc link ảnh đọc truyện qua Proxy của server
                     images.forEach(filename => {
                         const img = document.createElement('img');
                         img.className = 'comic-page-img';
                         img.loading = 'lazy';
-                        img.src = `${baseUrl}/data/${hash}/${filename}`;
+                        
+                        const rawImgUrl = `${baseUrl}/data/${hash}/${filename}`;
+                        img.src = `/api/proxy?url=${encodeURIComponent(rawImgUrl)}`;
                         
                         img.onerror = function() {
                             if (!this.dataset.retried) {
                                 this.dataset.retried = "true";
-                                this.src = `${baseUrl}/data-saver/${hash}/${filename}`;
+                                const rawSaverUrl = `${baseUrl}/data-saver/${hash}/${filename}`;
+                                this.src = `/api/proxy?url=${encodeURIComponent(rawSaverUrl)}`;
                             } else {
                                 this.style.display = 'none';
                             }
